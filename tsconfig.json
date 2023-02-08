@@ -10,15 +10,20 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "isolatedModules": true,
-	"strictNullChecks": true,
+    "strictNullChecks": true,
     "lib": [
       "DOM",
       "ES5",
       "ES6",
       "ES7"
-    ]
+    ],
+    "outDir": "./dist",
   },
   "include": [
-    "**/*.ts"
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "./dist"
   ]
 }
