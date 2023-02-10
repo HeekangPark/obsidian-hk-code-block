@@ -1,6 +1,7 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
+import { copyFile } from "fs/promises";
 import { sassPlugin } from "esbuild-sass-plugin";
 
 const banner =
@@ -42,7 +43,18 @@ const context = await esbuild.context({
 	sourcemap: prod ? false : "inline",
 	treeShaking: true,
 	outdir: "./dist",
-	plugins: [sassPlugin()]
+	plugins: [
+		sassPlugin(),
+		{
+			name: "copy-build-files-to-root",
+			setup(build) {
+				build.onEnd(() => {
+					copyFile("./dist/main.js", "./main.js");
+					copyFile("./dist/styles.css", "./styles.css");
+				});
+			}
+		}
+	]
 });
 
 if (prod) {

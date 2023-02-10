@@ -6,6 +6,8 @@ import type { HKCodeBlockSettings } from "./HKCodeBlockSettings";
 
 const REGEX = {
   TITLE: /\stitle:(?:'(.*?)'|"(.*?)")\s/,
+  COLLAPSIBLE_SIMPLE: /\scollapsible\s/,
+  COLLAPSIBLE_COMPLICATE: /\scollapsible:(true|false)\s/,
   LINENOS_SIMPLE: /\slinenos\s/,
   LINENOS_COMPLICATE: /\slinenos:(true|false|(-{0,1}\d+))\s/,
   HIGHLIGHT: /\shighlight:(?:'(.*?)'|"(.*?)")\s/,
@@ -22,6 +24,7 @@ const REGEX = {
 function getMeta(view: MarkdownView, elem_code: HTMLElement, section_code: MarkdownSectionInformation, settings: HKCodeBlockSettings): {
   showTitle: (boolean | undefined),
   title: string,
+  isCollapsible: (boolean | undefined),
   showLinenos: (boolean | undefined),
   linenosStart: number,
   linenosNum: number,
@@ -44,6 +47,20 @@ function getMeta(view: MarkdownView, elem_code: HTMLElement, section_code: Markd
   if (regexResult_title) {
     showTitle = true;
     title = regexResult_title[1] || regexResult_title[2];
+  }
+
+  // collapsible
+  let isCollapsible: (boolean | undefined) = undefined;
+  const regexResult_collapsibleSimple = REGEX.COLLAPSIBLE_SIMPLE.exec(firstline);
+  const regexResult_collapsibleComplicate = REGEX.COLLAPSIBLE_COMPLICATE.exec(firstline);
+  if (regexResult_collapsibleSimple) {
+    isCollapsible = true;
+  } else if (regexResult_collapsibleComplicate) {
+    if (regexResult_collapsibleComplicate[1] === "true") {
+      isCollapsible = true;
+    } else if (regexResult_collapsibleComplicate[1] === "false") {
+      isCollapsible = false;
+    }
   }
 
   // linenos
@@ -149,7 +166,7 @@ function getMeta(view: MarkdownView, elem_code: HTMLElement, section_code: Markd
   const regexResultPrompt_result = REGEX.PROMPT_COMPLICATE.exec(firstline);
   if (regexResult_result) {
     isResult = true;
-    
+
     // override other meta data : only linenos, highlight are available
     showTitle = false;
     showLanguage = false;
@@ -164,6 +181,7 @@ function getMeta(view: MarkdownView, elem_code: HTMLElement, section_code: Markd
   return {
     showTitle: showTitle,
     title: title,
+    isCollapsible: isCollapsible,
     showLinenos: showLinenos,
     linenosStart: linenosStart,
     linenosNum: linenosNum,
@@ -205,9 +223,10 @@ export async function HKCodeBlockProcessor(
   if (!section_code) return;
 
   // get metadata
-  const { 
+  const {
     showTitle,
     title,
+    isCollapsible,
     showLinenos,
     linenosStart,
     linenosNum,
@@ -223,7 +242,7 @@ export async function HKCodeBlockProcessor(
   } = getMeta(view, elem_code, section_code, settings);
 
   if (settings.debugMode) {
-    console.log({ 
+    console.log({
       showTitle: showTitle,
       title: title,
       showLinenos: showLinenos,
@@ -246,14 +265,59 @@ export async function HKCodeBlockProcessor(
   elem_code.classList.add("hk-codeblock-code");
   elem_copyBtn.remove(); // remove the original copy button as default
 
+  let elem_title: (HTMLElement | undefined) = undefined;
   if (settings.useTitleGlobal === "default off, but on when specified" && (showTitle === true)) {
     elem_div.classList.add("hk-codeblock-show-title");
 
-    const elem_title = document.createElement("div");
+    elem_title = document.createElement("div");
     elem_title.classList.add("hk-codeblock-title");
     elem_title.innerHTML = title;
     elem_div.insertBefore(elem_title, elem_pre);
   }
+
+  if (
+    (settings.useCollapsibleGlobal === "always on") ||
+    (settings.useCollapsibleGlobal === "default on, but off when specified" && (isCollapsible === undefined || isCollapsible === true)) ||
+    (settings.useCollapsibleGlobal === "default off, but on when specified" && (isCollapsible === true))
+  ) {
+    elem_div.classList.add("hk-codeblock-collapsible");
+
+    if (settings.defaultCollapse === "collapse") {
+      elem_div.classList.add("hk-codeblock-collapsed");
+    }
+
+    if (elem_title) {
+      elem_title.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        ev.preventDefault();
+        if (elem_div.classList.contains("hk-codeblock-collapsed")) {
+          elem_div.classList.remove("hk-codeblock-collapsed");
+        } else {
+          elem_div.classList.add("hk-codeblock-collapsed");
+        }
+      });
+
+      const elem_collapseBtns = document.createElement("div");
+      elem_collapseBtns.classList.add("hk-codeblock-collapse-btns");
+
+      const elem_collapseBtn = document.createElement("div");
+      elem_collapseBtn.classList.add("hk-codeblock-collapse-btn", "hk-codeblock-collapsed-btn");
+      elem_collapseBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 19a1 1 0 0 1-.64-.23 1 1 0 0 1-.13-1.41L13.71 12 9.39 6.63a1 1 0 0 1 .15-1.41 1 1 0 0 1 1.46.15l4.83 6a1 1 0 0 1 0 1.27l-5 6A1 1 0 0 1 10 19z"/>
+      </svg>`;
+      elem_collapseBtns.appendChild(elem_collapseBtn);
+
+      const elem_expandBtn = document.createElement("div");
+      elem_expandBtn.classList.add("hk-codeblock-collapse-btn", "hk-codeblock-expanded-btn");
+      elem_expandBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 16a1 1 0 0 1-.64-.23l-6-5a1 1 0 1 1 1.28-1.54L12 13.71l5.36-4.32a1 1 0 0 1 1.41.15 1 1 0 0 1-.14 1.46l-6 4.83A1 1 0 0 1 12 16z"/>
+      </svg>`;
+      elem_collapseBtns.appendChild(elem_expandBtn);
+
+      elem_title.prepend(elem_collapseBtns);
+    }
+  }
+
 
   if (
     (settings.useLinenosGlobal === "always on") ||
@@ -334,7 +398,7 @@ export async function HKCodeBlockProcessor(
     elem_pre.setAttribute("data-output", no_prompt_line_idxs.join(", "));
   }
 
-  if(settings.useResultGlobal === "enable" && (isResult === true)) {
+  if (settings.useResultGlobal === "enable" && (isResult === true)) {
     elem_div.classList.add("hk-codeblock-result");
     elem_code.classList.add("hk-codeblock-result-code");
 

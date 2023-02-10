@@ -22,6 +22,30 @@ HK CodeBlock을 이용하면 Code Block에 다양한 기능들을 추가할 수 
 
 반드시 따옴표 안에 제목을 넣어야 합니다. 큰따옴표와 작은 따옴표 모두 사용 가능합니다.
 
+### 접기
+
+접기 기능을 사용하려면 반드시 제목을 설정해야 합니다. 다음과 같이 하고 제목을 클릭하면 Code Block을 접거나 펼 수 있습니다.
+
+    ```python title:"Title of the code block" collapsible
+    print("Hello world")
+    ```
+
+또는 다음과 같이 할 수도 있습니다.
+
+    ```python title:"Title of the code block" collapsible:true
+    print("Hello world")
+    ```
+
+![collapsible1](https://github.com/HeekangPark/obsidian-hk-code-block/raw/master/imgs/collapsible1.png)
+
+![collapsible2](https://github.com/HeekangPark/obsidian-hk-code-block/raw/master/imgs/collapsible2.png)
+
+다음과 같이 하면 명시적으로 접기 기능을 끌 수 있습니다.
+
+    ```python title:"Title of the code block" collapsible:false
+    print("Hello world")
+    ```
+
 ### 줄 번호
 
 다음과 같이 하면 Code Block에 줄 번호를 추가할 수 있습니다.
@@ -238,6 +262,15 @@ Result Code Block의 프롬프트는 설정에서 설정한 값(기본값: "Resu
   - default off, but on when specified : 기본적으로 제목 기능을 사용하지 않습니다. 하지만 title 옵션을 명시하면 제목 기능을 사용합니다.
   - always off : 제목 기능을 항상 사용하지 않습니다.
 
+### Collapse
+
+- Use Collapse
+  - always on : 접기 기능을 항상 사용합니다.
+  - default on, but off when specified : 기본적으로 접기 기능을 사용합니다. 하지만 접기 기능을 사용하지 않는다고 명시하면 접기 기능을 사용하지 않습니다.
+  - default off, but on when specified : 기본적으로 접기 기능을 사용하지 않습니다. 하지만 접기 기능을 사용한다고 명시하면 접기 기능을 사용합니다.
+  - always off : 접기 기능을 항상 사용하지 않습니다.
+- Default Collapse State : 접기 기능을 사용할 때, 기본적으로 접힌 상태로 보여줄지 펼쳐진 상태로 보여줄지를 설정합니다.
+
 ### Line numbers
 
 - Use Line Numbers
@@ -316,3 +349,8 @@ MIT License
 ### 0.1.0
 
 - 최초 배포
+
+### 0.2.0
+
+- 기능 추가
+  - 접기 기능 추가

@@ -22,6 +22,30 @@ You can add title to the code block like this.
 
 You must put the title in quotes. You can use both single and double quotes.
 
+### Collapse
+
+You must use the title feature to use the collapse feature. You can collapse the code block like this.
+
+    ```python title:"Title of the code block" collapse
+    print("Hello world")
+    ```
+
+Or like this.
+
+    ```python title:"Title of the code block" collapse:true
+    print("Hello world")
+    ```
+
+![collapsible1](https://github.com/HeekangPark/obsidian-hk-code-block/raw/master/imgs/collapsible1.png)
+
+![collapsible2](https://github.com/HeekangPark/obsidian-hk-code-block/raw/master/imgs/collapsible2.png)
+
+If you want to explicitly expand the code block, you can do it like this.
+
+    ```python title:"Title of the code block" collapse:false
+    print("Hello world")
+    ```
+
 ### Line Numbers
 
 You can add line numbers to the code block like this.
@@ -238,6 +262,15 @@ You can change the default settings of each feature of HK Code Block in the sett
   - default off, but on when specified : the title will only be shown if the title statement is specified
   - always off : the title will never be shown
 
+### Collapse
+
+- Use Collapse
+  - always on : the code block will always be collapsible
+  - default on, but off when specified : the code block will always be collapsible, but will not be collapsed if collapse statement is specified as false
+  - default off, but on when specified : the code block will only be collapsible if the collapse statement is specified as true
+  - always off : the code block will never be collapsible
+- Default Collapse State : the default collapse state of the code block
+
 ### Line numbers
 
 - Use Line Numbers
@@ -316,3 +349,8 @@ MIT License
 ### 0.1.0
 
 - Initial release
+
+### 0.2.0
+
+- Add features
+  - Add collapse feature

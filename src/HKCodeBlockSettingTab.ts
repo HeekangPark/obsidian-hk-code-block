@@ -39,6 +39,44 @@ export class HKCodeBlockSettingTab extends PluginSettingTab {
 					})
 			);
 
+		// collapse
+		containerEl.createEl('h2', { text: 'Collapse' });
+
+		new Setting(containerEl)
+			.setName('Use Collapse')
+			.setDesc(fragWithHTML(`- <b>always on</b> : the code block will always be collapsible
+				- <b>default on, but off when specified</b> : the code block will always be collapsible, but will not be collapsed if collapse statement is specified as false
+				- <b>default off, but on when specified</b> : the code block will only be collapsible if the collapse statement is specified as true
+				- <b>always off</b> : the code block will never be collapsible`))
+			.addDropdown(tc =>
+				tc.addOptions({
+					"always on": "always on",
+					"default on, but off when specified": "default on, but off when specified",
+					"default off, but on when specified": "default off, but on when specified",
+					"always off": "always off",
+				})
+					.setValue(this.plugin.settings.useCollapsibleGlobal)
+					.onChange(async (value: string) => {
+						this.plugin.settings.useCollapsibleGlobal = value as ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off");
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('Default Collapse State')
+			.setDesc('The default collapse state of the code block.')
+			.addDropdown(tc =>
+				tc.addOptions({
+					"collapse": "collapse",
+					"expand": "expand",
+				})
+					.setValue(this.plugin.settings.defaultCollapse)
+					.onChange(async (value: string) => {
+						this.plugin.settings.defaultCollapse = value as ("collapse" | "expand");
+						await this.plugin.saveSettings();
+					})
+			);
+
 		// line numbers
 		containerEl.createEl('h2', { text: 'Line Numbers' });
 
@@ -181,8 +219,7 @@ export class HKCodeBlockSettingTab extends PluginSettingTab {
 			.setDesc(fragWithHTML(`- <b>always on</b> : prompt will always be shown
 				- <b>default on, but off when specified</b> : prompt will always be shown, but will not be shown if the prompt statement is specified as false
 				- <b>default off, but on when specified</b> : prompt will only be shown if the prompt statement is specified as true
-				- <b>always off</b> : prompt will never be shown
-				You can also specify the prompt by the statement like \`prompt:"My Prompt"\`. (default: "$")`))
+				- <b>always off</b> : prompt will never be shown`))
 			.addDropdown(tc =>
 				tc.addOptions({
 					"always on": "always on",

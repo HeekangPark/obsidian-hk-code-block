@@ -1,6 +1,10 @@
 export interface HKCodeBlockSettings {
 	useTitleGlobal: ("default off, but on when specified" | "always off");
 
+	useCollapsibleGlobal: ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off");
+	defaultCollapse: ("collapse" | "expand");
+	showCollapseBtn: boolean;
+
 	useLinenosGlobal: ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off");
 	defaultLinenosStart: number;
 	showLinenosSplitter: boolean;
@@ -25,6 +29,10 @@ export interface HKCodeBlockSettings {
 
 export const DEFAULT_SETTINGS: HKCodeBlockSettings = {
 	useTitleGlobal: "default off, but on when specified",
+
+	useCollapsibleGlobal: "default on, but off when specified",
+	defaultCollapse: "expand",
+	showCollapseBtn: true,
 
 	useLinenosGlobal: "default off, but on when specified",
 	defaultLinenosStart: 1,
