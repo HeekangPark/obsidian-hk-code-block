@@ -354,3 +354,8 @@ MIT License
 
 - Add features
   - Add collapse feature
+
+### 0.2.1
+
+- Bug fix
+  - Fix that prompted code blocks with multiple lines always show horizontal scrollbars

@@ -381,21 +381,26 @@ export async function HKCodeBlockProcessor(
   ) {
     elem_div.classList.add("hk-codeblock-show-prompt");
 
-    // using Prism.js command-line plugin
-    let code_lines = elem_code.innerText.split("\n");
-    if (code_lines[code_lines.length - 1].trim().length == 0) code_lines.pop(); // remove last line if empty
+    const elem_prompt = document.createElement("code");
+    elem_prompt.classList.add("hk-codeblock-prompt");
+    
+    const lines = elem_code.innerText.split("\n");
+    elem_prompt.innerText = Array(linenosNum).fill(0).map((_, idx) => {
+      const line = lines[idx].trim();
+      const prevLine = idx > 0 ? lines[idx - 1].trim(): "";
 
-    const no_prompt_line_idxs = code_lines.map((line, idx) => {
-      if (line.trim().length == 0) return (idx + 1); // empty line
-      if (line.startsWith("#")) return (idx + 1); // comment line
-      return -1;
-    }).filter((idx) => idx != -1);
+      if (
+        (line === "") || // check if the line is empty
+        (line.startsWith("#")) || // check if the line is a comment
+        (prevLine.endsWith("\\")) // check if the line is a continuation of the previous line
+      ) { 
+        return " ".repeat(prompt.length);
+      }
 
-    elem_pre.classList.add("command-line");
-    elem_pre.setAttribute("data-prompt", prompt);
-    elem_pre.setAttribute("data-continuation-str", "\\");
-    elem_pre.setAttribute("data-continuation-prompt", " ".repeat(prompt.length));  // use spaces to align continuation prompt
-    elem_pre.setAttribute("data-output", no_prompt_line_idxs.join(", "));
+      return prompt;
+    }).join("\n");
+
+    elem_pre.insertBefore(elem_prompt, elem_code);
   }
 
   if (settings.useResultGlobal === "enable" && (isResult === true)) {
