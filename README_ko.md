@@ -334,15 +334,16 @@ MIT License
 
 ## 알려진 문제점
 
-- 테마별 설정에 따라 몇몇 기능들이 제대로 동작하지 않을 수 있습니다. 2023년 02월 현재, 정상 동작을 시험해본 테마는 다음과 같습니다.
-  - Default Theme
-  - [Minimal Theme](https://github.com/kepano/obsidian-minimal)
-  - [Obsidian Nord](https://github.com/insanum/obsidian_nord)
-  - [Obsidianite](https://github.com/bennyxguo/Obsidian-Obsidianite)
-  - [Sanctum](https://github.com/jdanielmourao/obsidian-sanctum)
-  - [Shimmering Focus](https://github.com/chrisgrieser/shimmering-focus)
-  - [Wasp](https://github.com/santiyounger/Wasp-Obsidian-Theme)
-  - [Typewriter](https://github.com/crashmoney/obsidian-typewriter)
+- 테마별 설정에 따라 몇몇 기능들이 제대로 동작하지 않을 수 있습니다.
+  - 2023년 02월 현재, 정상 동작을 시험해본 테마는 다음과 같습니다.
+    - Default Theme
+    - [Minimal Theme](https://github.com/kepano/obsidian-minimal)
+    - [Obsidian Nord](https://github.com/insanum/obsidian_nord)
+    - [Sanctum](https://github.com/jdanielmourao/obsidian-sanctum)
+    - [Shimmering Focus](https://github.com/chrisgrieser/shimmering-focus)
+    - [Wasp](https://github.com/santiyounger/Wasp-Obsidian-Theme)
+    - [Typewriter](https://github.com/crashmoney/obsidian-typewriter)
+  - 테마 문제의 대부분은 해당 테마들이 CSS에 `!important` 키워드를 붙여 HK Code Block의 CSS 우선순위가 밀려 발생합니다. HK Code Block은 다른 테마, 플러그인과의 호환성을 위해 `!important` 키워드를 사용하지 않습니다. 만약 이런 테마들에서도 HK Code Block을 사용하고 싶다면 해당 테마의 CSS를 수정하거나 `!important` 등을 사용, HK Code Block의 CSS 우선순위를 직접 높여야 합니다.
 
 ## Changelog
 

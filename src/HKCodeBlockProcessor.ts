@@ -326,7 +326,7 @@ export async function HKCodeBlockProcessor(
   ) {
     elem_div.classList.add("hk-codeblock-show-linenos");
 
-    const elem_linenos = document.createElement("code");
+    const elem_linenos = document.createElement("div");
     elem_linenos.classList.add("hk-codeblock-linenos");
     elem_linenos.innerText = Array(linenosNum).fill(0).map((_, idx) => idx + linenosStart).join("\n");
     elem_pre.insertBefore(elem_linenos, elem_code);
@@ -381,7 +381,7 @@ export async function HKCodeBlockProcessor(
   ) {
     elem_div.classList.add("hk-codeblock-show-prompt");
 
-    const elem_prompt = document.createElement("code");
+    const elem_prompt = document.createElement("div");
     elem_prompt.classList.add("hk-codeblock-prompt");
     
     const lines = elem_code.innerText.split("\n");

@@ -6,12 +6,15 @@
     --hk-codeblock-vertical-padding: 8px;
     --hk-codeblock-background-color: var(--code-background);
     --hk-codeblock-border-color: var(--divider-color); // applied to title, linenos, and result
+    --hk-codeblock-font-size: var(--code-size);
     --hk-codeblock-title-text-color: var(--text-normal);
     --hk-codeblock-linenos-text-color: var(--code-normal);
+    --hk-codeblock-linenos-text-font: var(--font-monospace);
     --hk-codeblock-language-text-color: var(--text-muted); // same with copy button
     --hk-codeblock-language-text-size: var(--font-ui-smaller); // same with copy button
     --hk-codeblock-language-text-font: var(--font-interface); // same with copy button
     --hk-codeblock-prompt-text-color: var(--code-normal);
+    --hk-codeblock-prompt-text-font: var(--font-monospace);
     --hk-codeblock-result-text-color: var(--text-normal);
   }
 
@@ -119,14 +122,19 @@
 /* linenos */
 .hk-codeblock.hk-codeblock-show-linenos {
   pre {
-    code.hk-codeblock-linenos {
+    .hk-codeblock-linenos {
       flex-shrink: 0;
       flex-grow: 0;
       text-align: right;
+      padding: 0;
       padding-right: 1em;
       opacity: 0.6;
       user-select: none;
       color: var(--hk-codeblock-linenos-text-color);
+      white-space: pre;
+      font-family: var(--hk-codeblock-linenos-text-font);
+      font-size: var(--hk-codeblock-font-size);
+      background-color: transparent;
 
       &.show-splitter {
         border-right: 1px solid var(--hk-codeblock-border-color);
@@ -197,14 +205,19 @@
 /* prompt */
 .hk-codeblock.hk-codeblock-show-prompt {
   pre {
-    code.hk-codeblock-prompt {
+    .hk-codeblock-prompt {
       flex-shrink: 0;
       flex-grow: 0;
       text-align: right;
+      padding: 0;
       padding-right: 0.8em;
       opacity: 0.6;
       user-select: none;
       color: var(--hk-codeblock-prompt-text-color);
+      white-space: pre;
+      font-family: var(--hk-codeblock-prompt-text-font);
+      font-size: var(--hk-codeblock-font-size);
+      background-color: transparent;
     }
   }
 }

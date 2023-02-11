@@ -334,15 +334,16 @@ MIT License
 
 ## Known Issues
 
-- Some features may not work properly depending on the theme you are using. Currently on 2023-02, I checked that the following themes are working properly.
-  - Default Theme
-  - [Minimal Theme](https://github.com/kepano/obsidian-minimal)
-  - [Obsidian Nord](https://github.com/insanum/obsidian_nord)
-  - [Obsidianite](https://github.com/bennyxguo/Obsidian-Obsidianite)
-  - [Sanctum](https://github.com/jdanielmourao/obsidian-sanctum)
-  - [Shimmering Focus](https://github.com/chrisgrieser/shimmering-focus)
-  - [Wasp](https://github.com/santiyounger/Wasp-Obsidian-Theme)
-  - [Typewriter](https://github.com/crashmoney/obsidian-typewriter)
+- Some features may not work properly depending on the theme you are using.
+  - Currently on 2023-02, I checked that the following themes are working properly.
+    - Default Theme
+    - [Minimal Theme](https://github.com/kepano/obsidian-minimal)
+    - [Obsidian Nord](https://github.com/insanum/obsidian_nord)
+    - [Sanctum](https://github.com/jdanielmourao/obsidian-sanctum)
+    - [Shimmering Focus](https://github.com/chrisgrieser/shimmering-focus)
+    - [Wasp](https://github.com/santiyounger/Wasp-Obsidian-Theme)
+    - [Typewriter](https://github.com/crashmoney/obsidian-typewriter)
+  - Most of the theme problem is caused by the usage of `!important` keywords in the theme CSS. HK Code Block does not use `!important` keywords at all in order to avoid conflicts with other themes or plugins. If you want to use HK Code Block plugin with those themes, you should modify the theme CSS files, or by using `!important` keywords, you should explicitly increase the priority of the HK Code Block CSS rules.
 
 ## Changelog
 
