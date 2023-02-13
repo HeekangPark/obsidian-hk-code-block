@@ -88,15 +88,23 @@ HK CodeBlock을 이용하면 Code Block에 다양한 기능들을 추가할 수 
 
 다음과 같이 강조하고 싶은 줄의 번호를 콤마로 구분하여 입력하면 해당 줄에 강조 효과를 줄 수 있습니다.
 
-    ```python highlight:"2,3"
-    print("Hello world")
-    print("I love you")
-    print("Wow")
+    ```python highlight:"2-4,8,10"
+    print("line 1")
+    print("line 2")
+    print("line 3")
+    print("line 4")
+    print("line 5")
+    print("line 6")
+    print("line 7")
+    print("line 8")
+    print("line 9")
+    print("line 10")
+    print("line 11")
     ```
 
 ![highlight1](https://github.com/HeekangPark/obsidian-hk-code-block/raw/master/imgs/highlight1.png)
 
-반드시 따옴표 안에 줄 번호를 넣어야 합니다. 큰따옴표와 작은 따옴표 모두 사용 가능합니다.
+반드시 따옴표 안에 줄 번호를 넣어야 합니다. 큰따옴표와 작은 따옴표 모두 사용 가능합니다. 범위를 강조하고 싶다면 대시(`-`)를 사용하면 됩니다.
 
 만약 줄 번호 기능을 사용해 줄 번호가 1부터 시작하지 않도록 했다면, 강조할 줄 번호를 입력할 때도 이에 맞춰서 입력해야 합니다.
 
@@ -345,7 +353,18 @@ MIT License
     - [Typewriter](https://github.com/crashmoney/obsidian-typewriter)
   - 테마 문제의 대부분은 해당 테마들이 CSS에 `!important` 키워드를 붙여 HK Code Block의 CSS 우선순위가 밀려 발생합니다. HK Code Block은 다른 테마, 플러그인과의 호환성을 위해 `!important` 키워드를 사용하지 않습니다. 만약 이런 테마들에서도 HK Code Block을 사용하고 싶다면 해당 테마의 CSS를 수정하거나 `!important` 등을 사용, HK Code Block의 CSS 우선순위를 직접 높여야 합니다.
 
+## 버그 제보, 기능 추가 요청
+
+만약 사용 중 버그를 발견하거나, 기능 추가 요청이 있으시다면 GitHub Issues에 등록해주세요. 감사합니다!
+
 ## Changelog
+
+버전은 다음과 같은 규칙으로 관리됩니다.
+
+- 버전 x.y.z
+  - x : 전체 기능의 큰 변화가 있을 때(ex. 로직 변경 등) 증가합니다.
+  - y : 기능 추가 또는 수정이 있을 때 증가합니다.
+  - z : 버그 수정이 있을 때 증가합니다.
 
 ### 0.1.0
 
@@ -360,3 +379,10 @@ MIT License
 
 - 버그 수정
   - 여러 줄의 소스 코드가 있는 code block에서 프롬프트 기능 활성화 시 가로 스크롤이 생기는 문제 수정
+
+### 0.3.0
+
+- 버그 수정
+  - 다른 요소(ex. li) 아래에 있는 code block이 이상하게 렌더링되던 문제 해결
+- 기능 추가
+  - 이젠 줄 강조 시 `-` 기호를 사용해 손쉽게 여러 줄을 연속적으로 강조할 수 있음

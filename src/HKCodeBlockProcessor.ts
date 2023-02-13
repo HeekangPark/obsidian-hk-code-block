@@ -19,6 +19,7 @@ const REGEX = {
   RESULT: /^```result\s/,
   PROMPT_SIMPLE: /\sprompt\s/,
   PROMPT_COMPLICATE: /\sprompt:(true|false|'(.*?)'|"(.*?)")\s/,
+  NUMBER: /^-{0,1}\d+$/,
 }
 
 function getMeta(view: MarkdownView, elem_code: HTMLElement, section_code: MarkdownSectionInformation, settings: HKCodeBlockSettings): {
@@ -38,7 +39,29 @@ function getMeta(view: MarkdownView, elem_code: HTMLElement, section_code: Markd
   showPrompt: (boolean | undefined),
   prompt: string
 } {
-  const firstline = view.editor.getLine(section_code.lineStart) + " "; // add a space to the end of the line to make sure the regex works
+  const lineStart = (() => {
+    for(let i = section_code.lineStart; i <= section_code.lineEnd; i++) {
+      const line = view.editor.getLine(i);
+      if (line.trim().startsWith("```")) return i;
+    }
+
+    return -1;
+  })();
+
+  const lineEnd = (() => {
+    for(let i = section_code.lineEnd; i >= section_code.lineStart; i--) {
+      const line = view.editor.getLine(i);
+      if (line.trim().startsWith("```")) return i;
+    }
+
+    return -1;
+  })();
+
+  if (lineStart < 0 || lineEnd < 0 || lineStart >= lineEnd) {
+    throw new Error("Cannot find the first line or the last line of the code block");
+  }
+
+  const firstline = view.editor.getLine(lineStart) + " "; // add a space to the end of the line to make sure the regex works
 
   // title
   let showTitle: (boolean | undefined) = undefined;
@@ -66,7 +89,7 @@ function getMeta(view: MarkdownView, elem_code: HTMLElement, section_code: Markd
   // linenos
   let showLinenos: (boolean | undefined) = undefined;
   let linenosStart = settings.defaultLinenosStart;
-  const linenosNum = section_code.lineEnd - section_code.lineStart - 1;
+  const linenosNum = lineEnd - lineStart - 1;
   const regexResult_linenosSimple = REGEX.LINENOS_SIMPLE.exec(firstline);
   const regexResult_linenosComplicate = REGEX.LINENOS_COMPLICATE.exec(firstline);
   if (regexResult_linenosSimple) {
@@ -89,7 +112,23 @@ function getMeta(view: MarkdownView, elem_code: HTMLElement, section_code: Markd
   if (regexResult_highlight) {
     showHighlight = true;
     const highlightLines_str = regexResult_highlight[1] || regexResult_highlight[2];
-    highlightLines = highlightLines_str.split(",").map((line) => parseInt(line));
+    highlightLines = highlightLines_str.split(",").map((item) => {
+      item = item.trim();
+
+      if (REGEX.NUMBER.test(item)) return parseInt(item);
+
+      const multiple_lines = item.split("-");
+      if (multiple_lines.length === 2) {
+        const start = parseInt(multiple_lines[0].trim());
+        const end = parseInt(multiple_lines[1].trim());
+
+        if (!isNaN(start) && !isNaN(end)) {
+          return Array.from({ length: end - start + 1 }, (_, i) => i + start);
+        }
+      }
+
+      return NaN;
+    }).flat().filter((item) => !isNaN(item));
 
     if (highlightLines.some((line) => isNaN(line))) {
       // if any element is nan, then set showHighlight to false
@@ -207,7 +246,7 @@ export async function HKCodeBlockProcessor(
   const view = app.workspace.getActiveViewOfType(MarkdownView);
   if (!view) return;
 
-  const elem_code: (HTMLElement | null) = el.querySelector("pre:not(.frontmatter) > code");
+  const elem_code: (HTMLElement | null) = el.querySelector("pre:not(.frontmatter) > code"); // skip front matter
   if (!elem_code) return;
 
   const elem_pre: (HTMLElement | null) = elem_code.parentElement;
@@ -223,28 +262,27 @@ export async function HKCodeBlockProcessor(
   if (!section_code) return;
 
   // get metadata
-  const {
-    showTitle,
-    title,
-    isCollapsible,
-    showLinenos,
-    linenosStart,
-    linenosNum,
-    showHighlight,
-    highlightLines,
-    showLanguage,
-    language,
-    showCopyBtn,
-    isResult,
-    resultPrompt,
-    showPrompt,
-    prompt
-  } = getMeta(view, elem_code, section_code, settings);
-
-  if (settings.debugMode) {
-    console.log({
+  let 
+    showTitle: (boolean | undefined),
+    title: string,
+    isCollapsible: (boolean | undefined),
+    showLinenos: (boolean | undefined),
+    linenosStart: number,
+    linenosNum: number,
+    showHighlight: (boolean | undefined),
+    highlightLines: number[],
+    showLanguage: (boolean | undefined),
+    language: string,
+    showCopyBtn: (boolean | undefined),
+    isResult: boolean,
+    resultPrompt: string,
+    showPrompt: (boolean | undefined),
+    prompt: string;
+  try {
+    ({
       showTitle: showTitle,
       title: title,
+      isCollapsible: isCollapsible,
       showLinenos: showLinenos,
       linenosStart: linenosStart,
       linenosNum: linenosNum,
@@ -257,7 +295,29 @@ export async function HKCodeBlockProcessor(
       resultPrompt: resultPrompt,
       showPrompt: showPrompt,
       prompt: prompt,
-    })
+    } = getMeta(view, elem_code, section_code, settings));
+    
+    if (settings.debugMode) {
+      console.log({
+        showTitle: showTitle,
+        title: title,
+        isCollapsible: isCollapsible,
+        showLinenos: showLinenos,
+        linenosStart: linenosStart,
+        linenosNum: linenosNum,
+        showHighlight: showHighlight,
+        highlightLines: highlightLines,
+        showLanguage: showLanguage,
+        language: language,
+        showCopyBtn: showCopyBtn,
+        isResult: isResult,
+        resultPrompt: resultPrompt,
+        showPrompt: showPrompt,
+        prompt: prompt,
+      })
+    }
+  } catch (e) { // if cannot find metadata, skip this code block
+    return;
   }
 
   // create HTML elements
@@ -341,7 +401,7 @@ export async function HKCodeBlockProcessor(
 
     elem_div.style.setProperty("--hk-codeblock-highlight-background-color", settings.highlightColor);
 
-    const elem_highlight = document.createElement("code");
+    const elem_highlight = document.createElement("div");
     elem_highlight.classList.add("hk-codeblock-highlight");
     elem_highlight.innerHTML = Array(linenosNum).fill(0).map((_, idx) => {
       const classNames: string[] = [];
@@ -383,22 +443,24 @@ export async function HKCodeBlockProcessor(
 
     const elem_prompt = document.createElement("div");
     elem_prompt.classList.add("hk-codeblock-prompt");
-    
+
     const lines = elem_code.innerText.split("\n");
     elem_prompt.innerText = Array(linenosNum).fill(0).map((_, idx) => {
+      if (idx < 0 || idx >= lines.length) return null;
+
       const line = lines[idx].trim();
-      const prevLine = idx > 0 ? lines[idx - 1].trim(): "";
+      const prevLine = idx > 0 ? lines[idx - 1].trim() : "";
 
       if (
         (line === "") || // check if the line is empty
         (line.startsWith("#")) || // check if the line is a comment
         (prevLine.endsWith("\\")) // check if the line is a continuation of the previous line
-      ) { 
+      ) {
         return " ".repeat(prompt.length);
       }
 
       return prompt;
-    }).join("\n");
+    }).filter((line) => line !== null).join("\n");
 
     elem_pre.insertBefore(elem_prompt, elem_code);
   }

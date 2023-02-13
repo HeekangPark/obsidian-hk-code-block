@@ -88,15 +88,23 @@ If you want to explicitly hide the line numbers, you can do it like this.
 
 You can highlight specific lines in the code block with commas like this.
 
-    ```python highlight:"2,3"
-    print("Hello world")
-    print("I love you")
-    print("Wow")
+    ```python highlight:"2-4,8,10"
+    print("line 1")
+    print("line 2")
+    print("line 3")
+    print("line 4")
+    print("line 5")
+    print("line 6")
+    print("line 7")
+    print("line 8")
+    print("line 9")
+    print("line 10")
+    print("line 11")
     ```
 
 ![highlight1](https://github.com/HeekangPark/obsidian-hk-code-block/raw/master/imgs/highlight1.png)
 
-You must put the line numbers in quotes. You can use both single and double quotes.
+You must put the line numbers in quotes. You can use both single and double quotes. You can also use a dash to specify a range of line numbers.
 
 If you use the line numbers feature and set the line numbers don't start from 1, you must enter the line numbers to be highlighted according to that.
 
@@ -345,7 +353,18 @@ MIT License
     - [Typewriter](https://github.com/crashmoney/obsidian-typewriter)
   - Most of the theme problem is caused by the usage of `!important` keywords in the theme CSS. HK Code Block does not use `!important` keywords at all in order to avoid conflicts with other themes or plugins. If you want to use HK Code Block plugin with those themes, you should modify the theme CSS files, or by using `!important` keywords, you should explicitly increase the priority of the HK Code Block CSS rules.
 
+## Bug Report, Feature Request
+
+If you find any bugs or have any feature requests, please report them on the GitHub Issues. Thank you!
+
 ## Changelog
+
+Versions are controlled by the rule below.
+
+- Version x.y.z
+  - x : increased when huge changes are made(ex. change of logic, etc.)
+  - y : increased when features are newly added or changed
+  - z : increased when bug fixes are made
 
 ### 0.1.0
 
@@ -360,3 +379,10 @@ MIT License
 
 - Bug fix
   - Fix that prompted code blocks with multiple lines always show horizontal scrollbars
+
+### 0.3.0
+
+- Bug fix
+  - Fix that code blocks inside other elements(ex. li) are not rendered properly
+- Add features
+  - Now you can use `-` symbols in the highlight statement so that you can easily highlight multiple, continuous lines.

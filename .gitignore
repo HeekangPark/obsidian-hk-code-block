@@ -2,5 +2,7 @@
 
 node_modules
 
+# ignore files for local testing
 main.js
 styles.css
+data.json
