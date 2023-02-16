@@ -386,3 +386,9 @@ Versions are controlled by the rule below.
   - Fix that code blocks inside other elements(ex. li) are not rendered properly
 - Add features
   - Now you can use `-` symbols in the highlight statement so that you can easily highlight multiple, continuous lines.
+
+### 0.3.1
+
+- Bug fix
+  - Fix that the titles of continuous code blocks inside other elements(ex. li) are not rendered properly
+  - Fix that an additional empty line is inserted at the end of the code block when the code block is inside other elements(ex. li)

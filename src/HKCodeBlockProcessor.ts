@@ -22,7 +22,16 @@ const REGEX = {
   NUMBER: /^-{0,1}\d+$/,
 }
 
-function getMeta(view: MarkdownView, elem_code: HTMLElement, section_code: MarkdownSectionInformation, settings: HKCodeBlockSettings): {
+function getMeta(
+  view: MarkdownView,
+  elem_code: HTMLElement,
+  elem_code_idx: number,
+  section_code: MarkdownSectionInformation,
+  settings: HKCodeBlockSettings
+): {
+  isError: boolean,
+  lineStartInSection: number,
+  lineEndInSection: number,
   showTitle: (boolean | undefined),
   title: string,
   isCollapsible: (boolean | undefined),
@@ -39,80 +48,111 @@ function getMeta(view: MarkdownView, elem_code: HTMLElement, section_code: Markd
   showPrompt: (boolean | undefined),
   prompt: string
 } {
-  const lineStart = (() => {
-    for(let i = section_code.lineStart; i <= section_code.lineEnd; i++) {
-      const line = view.editor.getLine(i);
-      if (line.trim().startsWith("```")) return i;
-    }
-
-    return -1;
-  })();
-
-  const lineEnd = (() => {
-    for(let i = section_code.lineEnd; i >= section_code.lineStart; i--) {
-      const line = view.editor.getLine(i);
-      if (line.trim().startsWith("```")) return i;
-    }
-
-    return -1;
-  })();
-
-  if (lineStart < 0 || lineEnd < 0 || lineStart >= lineEnd) {
-    throw new Error("Cannot find the first line or the last line of the code block");
+  const return_value: {
+    isError: boolean,
+    lineStartInSection: number,
+    lineEndInSection: number,
+    showTitle: (boolean | undefined),
+    title: string,
+    isCollapsible: (boolean | undefined),
+    showLinenos: (boolean | undefined),
+    linenosStart: number,
+    linenosNum: number,
+    showHighlight: (boolean | undefined),
+    highlightLines: number[],
+    showLanguage: (boolean | undefined),
+    language: string,
+    showCopyBtn: (boolean | undefined),
+    isResult: boolean,
+    resultPrompt: string,
+    showPrompt: (boolean | undefined),
+    prompt: string
+  } = {
+    isError: false,
+    lineStartInSection: -1,
+    lineEndInSection: -1,
+    showTitle: undefined,
+    title: "",
+    isCollapsible: undefined,
+    showLinenos: undefined,
+    linenosStart: settings.defaultLinenosStart,
+    linenosNum: 0,
+    showHighlight: undefined,
+    highlightLines: [],
+    showLanguage: undefined,
+    language: settings.defaultLanguage,
+    showCopyBtn: undefined,
+    isResult: false,
+    resultPrompt: settings.defaultResultPrompt,
+    showPrompt: undefined,
+    prompt: settings.defaultPrompt
   }
 
-  const firstline = view.editor.getLine(lineStart) + " "; // add a space to the end of the line to make sure the regex works
+  let marker_count = 0;
+  for (let i = section_code.lineStart; i <= section_code.lineEnd; i++) {
+    const line = view.editor.getLine(i);
+    if (line.trim().startsWith("```")) marker_count++;
+
+    if (return_value.lineStartInSection === -1 && marker_count === elem_code_idx * 2 + 1) {
+      return_value.lineStartInSection = i;
+    }
+
+    if (return_value.lineEndInSection === -1 && marker_count === elem_code_idx * 2 + 2) {
+      return_value.lineEndInSection = i;
+      break;
+    }
+  }
+
+  if (return_value.lineStartInSection < 0 || return_value.lineEndInSection < 0 || return_value.lineStartInSection >= return_value.lineEndInSection) {
+    return_value.isError = true;
+    return return_value;
+  }
+
+  const firstline = view.editor.getLine(return_value.lineStartInSection).trim() + " "; // add a space to the end of the line to make sure the regex works
 
   // title
-  let showTitle: (boolean | undefined) = undefined;
-  let title = "";
   const regexResult_title = REGEX.TITLE.exec(firstline);
   if (regexResult_title) {
-    showTitle = true;
-    title = regexResult_title[1] || regexResult_title[2];
+    return_value.showTitle = true;
+    return_value.title = regexResult_title[1] || regexResult_title[2];
   }
 
   // collapsible
-  let isCollapsible: (boolean | undefined) = undefined;
   const regexResult_collapsibleSimple = REGEX.COLLAPSIBLE_SIMPLE.exec(firstline);
   const regexResult_collapsibleComplicate = REGEX.COLLAPSIBLE_COMPLICATE.exec(firstline);
   if (regexResult_collapsibleSimple) {
-    isCollapsible = true;
+    return_value.isCollapsible = true;
   } else if (regexResult_collapsibleComplicate) {
     if (regexResult_collapsibleComplicate[1] === "true") {
-      isCollapsible = true;
+      return_value.isCollapsible = true;
     } else if (regexResult_collapsibleComplicate[1] === "false") {
-      isCollapsible = false;
+      return_value.isCollapsible = false;
     }
   }
 
   // linenos
-  let showLinenos: (boolean | undefined) = undefined;
-  let linenosStart = settings.defaultLinenosStart;
-  const linenosNum = lineEnd - lineStart - 1;
+  return_value.linenosNum = return_value.lineEndInSection - return_value.lineStartInSection - 1;
   const regexResult_linenosSimple = REGEX.LINENOS_SIMPLE.exec(firstline);
   const regexResult_linenosComplicate = REGEX.LINENOS_COMPLICATE.exec(firstline);
   if (regexResult_linenosSimple) {
-    showLinenos = true;
+    return_value.showLinenos = true;
   } else if (regexResult_linenosComplicate) {
     if (regexResult_linenosComplicate[1] === "true") {
-      showLinenos = true;
+      return_value.showLinenos = true;
     } else if (regexResult_linenosComplicate[1] === "false") {
-      showLinenos = false;
+      return_value.showLinenos = false;
     } else {
-      showLinenos = true;
-      linenosStart = parseInt(regexResult_linenosComplicate[2]) || 1;
+      return_value.showLinenos = true;
+      return_value.linenosStart = parseInt(regexResult_linenosComplicate[2]) || 1;
     }
   }
 
   // highlight
-  let showHighlight: (boolean | undefined) = undefined;
-  let highlightLines: number[] = [];
   const regexResult_highlight = REGEX.HIGHLIGHT.exec(firstline);
   if (regexResult_highlight) {
-    showHighlight = true;
+    return_value.showHighlight = true;
     const highlightLines_str = regexResult_highlight[1] || regexResult_highlight[2];
-    highlightLines = highlightLines_str.split(",").map((item) => {
+    let highlightLines = highlightLines_str.split(",").map((item) => {
       item = item.trim();
 
       if (REGEX.NUMBER.test(item)) return parseInt(item);
@@ -132,108 +172,85 @@ function getMeta(view: MarkdownView, elem_code: HTMLElement, section_code: Markd
 
     if (highlightLines.some((line) => isNaN(line))) {
       // if any element is nan, then set showHighlight to false
-      showHighlight = undefined;
-      highlightLines = [];
+      return_value.showHighlight = undefined;
+      return_value.highlightLines = [];
     } else {
       // use only valid line numbers
-      highlightLines = highlightLines.filter((line) => line >= linenosStart && line < linenosStart + linenosNum);
+      return_value.highlightLines = highlightLines.filter(
+        (line) => line >= return_value.linenosStart && line < return_value.linenosStart + return_value.linenosNum
+      );
     }
   }
 
   // language
-  let showLanguage: (boolean | undefined) = undefined;
-  let language = (() => {
-    let language = settings.defaultLanguage;
-    elem_code.classList.forEach((className) => {
-      const regexResult_languageFromClass = REGEX.LANGUAGE_FROM_CLASS.exec(className.trim());
-      if (regexResult_languageFromClass) language = regexResult_languageFromClass[1];
-    });
-
-    return language;
-  })();
+  elem_code.classList.forEach((className) => {
+    const regexResult_languageFromClass = REGEX.LANGUAGE_FROM_CLASS.exec(className.trim());
+    if (regexResult_languageFromClass) {
+      return_value.language = regexResult_languageFromClass[1];
+    }
+  });
   const regexResult_languageSimple = REGEX.LANGUAGE_SIMPLE.exec(firstline);
   const regexResult_languageComplicate = REGEX.LANGUAGE_COMPLICATE.exec(firstline);
   if (regexResult_languageSimple) {
-    showLanguage = true;
+    return_value.showLanguage = true;
   } else if (regexResult_languageComplicate) {
     if (regexResult_languageComplicate[1] === "true") {
-      showLanguage = true;
+      return_value.showLanguage = true;
     } else if (regexResult_languageComplicate[1] === "false") {
-      showLanguage = false;
+      return_value.showLanguage = false;
     } else {
-      showLanguage = true;
-      language = regexResult_languageComplicate[2] || regexResult_languageComplicate[3];
+      return_value.showLanguage = true;
+      return_value.language = regexResult_languageComplicate[2] || regexResult_languageComplicate[3];
     }
   }
 
   // copy button
-  let showCopyBtn: (boolean | undefined) = undefined;
   const regexResult_copyBtnSimple = REGEX.COPYBTN_SIMPLE.exec(firstline);
   const regexResult_copyBtnComplicate = REGEX.COPYBTN_COMPLICATE.exec(firstline);
   if (regexResult_copyBtnSimple) {
-    showCopyBtn = true;
+    return_value.showCopyBtn = true;
   } else if (regexResult_copyBtnComplicate) {
     if (regexResult_copyBtnComplicate[1] === "true") {
-      showCopyBtn = true;
+      return_value.showCopyBtn = true;
     } else if (regexResult_copyBtnComplicate[1] === "false") {
-      showCopyBtn = false;
+      return_value.showCopyBtn = false;
     }
   }
 
   // prompt
-  let showPrompt: (boolean | undefined) = undefined;
-  let prompt = settings.defaultPrompt;
   const regexResult_promptSimple = REGEX.PROMPT_SIMPLE.exec(firstline);
   const regexResult_promptComplicate = REGEX.PROMPT_COMPLICATE.exec(firstline);
   if (regexResult_promptSimple) {
-    showPrompt = true;
+    return_value.showPrompt = true;
   } else if (regexResult_promptComplicate) {
     if (regexResult_promptComplicate[1] === "true") {
-      showPrompt = true;
+      return_value.showPrompt = true;
     } else if (regexResult_promptComplicate[1] === "false") {
-      showPrompt = false;
+      return_value.showPrompt = false;
     } else {
-      showPrompt = true;
-      prompt = regexResult_promptComplicate[2] || regexResult_promptComplicate[3];
+      return_value.showPrompt = true;
+      return_value.prompt = regexResult_promptComplicate[2] || regexResult_promptComplicate[3];
     }
   }
 
   // result
-  let isResult = false;
-  let resultPrompt = settings.defaultResultPrompt;
   const regexResult_result = REGEX.RESULT.exec(firstline);
   const regexResultPrompt_result = REGEX.PROMPT_COMPLICATE.exec(firstline);
   if (regexResult_result) {
-    isResult = true;
+    return_value.isResult = true;
 
     // override other meta data : only linenos, highlight are available
-    showTitle = false;
-    showLanguage = false;
-    showCopyBtn = false;
-    showPrompt = false;
+    return_value.showTitle = false;
+    return_value.showLanguage = false;
+    return_value.showCopyBtn = false;
+    return_value.showPrompt = false;
 
     if (regexResultPrompt_result) {
-      resultPrompt = regexResultPrompt_result[2] || regexResultPrompt_result[3];
+      return_value.resultPrompt = regexResultPrompt_result[2] || regexResultPrompt_result[3];
     }
   }
 
-  return {
-    showTitle: showTitle,
-    title: title,
-    isCollapsible: isCollapsible,
-    showLinenos: showLinenos,
-    linenosStart: linenosStart,
-    linenosNum: linenosNum,
-    showHighlight: showHighlight,
-    highlightLines: highlightLines,
-    showLanguage: showLanguage,
-    language: language,
-    showCopyBtn: showCopyBtn,
-    isResult: isResult,
-    resultPrompt: resultPrompt,
-    showPrompt: showPrompt,
-    prompt: prompt
-  };
+  return return_value;
 }
 
 export async function HKCodeBlockProcessor(
@@ -246,59 +263,72 @@ export async function HKCodeBlockProcessor(
   const view = app.workspace.getActiveViewOfType(MarkdownView);
   if (!view) return;
 
-  const elem_code: (HTMLElement | null) = el.querySelector("pre:not(.frontmatter) > code"); // skip front matter
-  if (!elem_code) return;
+  /* Note:
+  // - get all code blocks : obsidian markdown parser sometimes pass multiple code blocks
+  // - skip front matter
+  */
+  const elem_codes: NodeListOf<Element> = el.querySelectorAll("pre:not(.frontmatter) > code");
+  if (elem_codes.length === 0) return;
 
-  const elem_pre: (HTMLElement | null) = elem_code.parentElement;
-  if (!elem_pre) return;
+  elem_codes.forEach((elem_code: HTMLElement, elem_code_idx: number) => {
+    const elem_pre: (HTMLElement | null) = elem_code.parentElement;
+    if (!elem_pre) return;
 
-  const elem_div: (HTMLElement | null) = elem_pre.parentElement;
-  if (!elem_div) return;
+    const elem_pre_parent: (HTMLElement | null) = elem_pre.parentElement;
+    if (!elem_pre_parent) return;
 
-  const elem_copyBtn: (HTMLElement | null) = elem_div.querySelector(".copy-code-button");
-  if (!elem_copyBtn) return;
+    const elem_copyBtn: (HTMLElement | null) = elem_pre.querySelector(".copy-code-button");
+    if (!elem_copyBtn) return;
 
-  const section_code: (MarkdownSectionInformation | null) = context.getSectionInfo(elem_code);
-  if (!section_code) return;
+    const section_code: (MarkdownSectionInformation | null) = context.getSectionInfo(elem_code);
+    if (!section_code) return;
 
-  // get metadata
-  let 
-    showTitle: (boolean | undefined),
-    title: string,
-    isCollapsible: (boolean | undefined),
-    showLinenos: (boolean | undefined),
-    linenosStart: number,
-    linenosNum: number,
-    showHighlight: (boolean | undefined),
-    highlightLines: number[],
-    showLanguage: (boolean | undefined),
-    language: string,
-    showCopyBtn: (boolean | undefined),
-    isResult: boolean,
-    resultPrompt: string,
-    showPrompt: (boolean | undefined),
-    prompt: string;
-  try {
-    ({
-      showTitle: showTitle,
-      title: title,
-      isCollapsible: isCollapsible,
-      showLinenos: showLinenos,
-      linenosStart: linenosStart,
-      linenosNum: linenosNum,
-      showHighlight: showHighlight,
-      highlightLines: highlightLines,
-      showLanguage: showLanguage,
-      language: language,
-      showCopyBtn: showCopyBtn,
-      isResult: isResult,
-      resultPrompt: resultPrompt,
-      showPrompt: showPrompt,
-      prompt: prompt,
-    } = getMeta(view, elem_code, section_code, settings));
-    
+    // get metadata
+    const {
+      isError,
+      lineStartInSection,
+      lineEndInSection,
+      showTitle,
+      title,
+      isCollapsible,
+      showLinenos,
+      linenosStart,
+      linenosNum,
+      showHighlight,
+      highlightLines,
+      showLanguage,
+      language,
+      showCopyBtn,
+      isResult,
+      resultPrompt,
+      showPrompt,
+      prompt,
+    }: {
+      isError: boolean,
+      lineStartInSection: number,
+      lineEndInSection: number,
+      showTitle: (boolean | undefined),
+      title: string,
+      isCollapsible: (boolean | undefined),
+      showLinenos: (boolean | undefined),
+      linenosStart: number,
+      linenosNum: number,
+      showHighlight: (boolean | undefined),
+      highlightLines: number[],
+      showLanguage: (boolean | undefined),
+      language: string,
+      showCopyBtn: (boolean | undefined),
+      isResult: boolean,
+      resultPrompt: string,
+      showPrompt: (boolean | undefined),
+      prompt: string
+    } = getMeta(view, elem_code, elem_code_idx, section_code, settings);
+    if (isError) return;
     if (settings.debugMode) {
       console.log({
+        isError: isError,
+        lineStartInSection: lineStartInSection,
+        lineEndInSection: lineEndInSection,
         showTitle: showTitle,
         title: title,
         isCollapsible: isCollapsible,
@@ -316,159 +346,178 @@ export async function HKCodeBlockProcessor(
         prompt: prompt,
       })
     }
-  } catch (e) { // if cannot find metadata, skip this code block
-    return;
-  }
 
-  // create HTML elements
-  elem_div.classList.add("hk-codeblock");
-  elem_code.classList.add("hk-codeblock-code");
-  elem_copyBtn.remove(); // remove the original copy button as default
+    // create HTML elements
+    const elem_div: HTMLElement = document.createElement("div");
+    elem_pre_parent.replaceChild(elem_div, elem_pre);
+    elem_div.appendChild(elem_pre);
 
-  let elem_title: (HTMLElement | undefined) = undefined;
-  if (settings.useTitleGlobal === "default off, but on when specified" && (showTitle === true)) {
-    elem_div.classList.add("hk-codeblock-show-title");
+    elem_div.classList.add("hk-codeblock");
+    elem_code.classList.add("hk-codeblock-code");
+    elem_copyBtn.remove(); // remove the original copy button as default
 
-    elem_title = document.createElement("div");
-    elem_title.classList.add("hk-codeblock-title");
-    elem_title.innerHTML = title;
-    elem_div.insertBefore(elem_title, elem_pre);
-  }
+    let elem_title: (HTMLElement | undefined) = undefined;
+    if (settings.useTitleGlobal === "default off, but on when specified" && (showTitle === true)) {
+      elem_div.classList.add("hk-codeblock-show-title");
 
-  if (
-    (settings.useCollapsibleGlobal === "always on") ||
-    (settings.useCollapsibleGlobal === "default on, but off when specified" && (isCollapsible === undefined || isCollapsible === true)) ||
-    (settings.useCollapsibleGlobal === "default off, but on when specified" && (isCollapsible === true))
-  ) {
-    elem_div.classList.add("hk-codeblock-collapsible");
-
-    if (settings.defaultCollapse === "collapse") {
-      elem_div.classList.add("hk-codeblock-collapsed");
+      elem_title = document.createElement("div");
+      elem_title.classList.add("hk-codeblock-title");
+      elem_title.innerHTML = title;
+      elem_div.insertBefore(elem_title, elem_pre);
     }
 
-    if (elem_title) {
-      elem_title.addEventListener("click", (ev) => {
-        ev.stopPropagation();
-        ev.preventDefault();
-        if (elem_div.classList.contains("hk-codeblock-collapsed")) {
-          elem_div.classList.remove("hk-codeblock-collapsed");
-        } else {
+    if (
+      (settings.useCollapsibleGlobal === "always on") ||
+      (settings.useCollapsibleGlobal === "default on, but off when specified" && (isCollapsible === undefined || isCollapsible === true)) ||
+      (settings.useCollapsibleGlobal === "default off, but on when specified" && (isCollapsible === true))
+    ) {
+      if (elem_title) {
+        elem_div.classList.add("hk-codeblock-collapsible");
+
+        if (settings.defaultCollapse === "collapse") {
           elem_div.classList.add("hk-codeblock-collapsed");
         }
-      });
 
-      const elem_collapseBtns = document.createElement("div");
-      elem_collapseBtns.classList.add("hk-codeblock-collapse-btns");
+        elem_title.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          ev.preventDefault();
+          elem_div.classList.toggle("hk-codeblock-collapsed");
+        });
 
-      const elem_collapseBtn = document.createElement("div");
-      elem_collapseBtn.classList.add("hk-codeblock-collapse-btn", "hk-codeblock-collapsed-btn");
-      elem_collapseBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        const elem_collapseBtns = document.createElement("div");
+        elem_collapseBtns.classList.add("hk-codeblock-collapse-btns");
+
+        const elem_collapseBtn = document.createElement("div");
+        elem_collapseBtn.classList.add("hk-codeblock-collapse-btn", "hk-codeblock-collapsed-btn");
+        elem_collapseBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M10 19a1 1 0 0 1-.64-.23 1 1 0 0 1-.13-1.41L13.71 12 9.39 6.63a1 1 0 0 1 .15-1.41 1 1 0 0 1 1.46.15l4.83 6a1 1 0 0 1 0 1.27l-5 6A1 1 0 0 1 10 19z"/>
       </svg>`;
-      elem_collapseBtns.appendChild(elem_collapseBtn);
+        elem_collapseBtns.appendChild(elem_collapseBtn);
 
-      const elem_expandBtn = document.createElement("div");
-      elem_expandBtn.classList.add("hk-codeblock-collapse-btn", "hk-codeblock-expanded-btn");
-      elem_expandBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        const elem_expandBtn = document.createElement("div");
+        elem_expandBtn.classList.add("hk-codeblock-collapse-btn", "hk-codeblock-expanded-btn");
+        elem_expandBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 16a1 1 0 0 1-.64-.23l-6-5a1 1 0 1 1 1.28-1.54L12 13.71l5.36-4.32a1 1 0 0 1 1.41.15 1 1 0 0 1-.14 1.46l-6 4.83A1 1 0 0 1 12 16z"/>
       </svg>`;
-      elem_collapseBtns.appendChild(elem_expandBtn);
+        elem_collapseBtns.appendChild(elem_expandBtn);
 
-      elem_title.prepend(elem_collapseBtns);
-    }
-  }
-
-
-  if (
-    (settings.useLinenosGlobal === "always on") ||
-    (settings.useLinenosGlobal === "default on, but off when specified" && (showLinenos === undefined || showLinenos === true)) ||
-    (settings.useLinenosGlobal === "default off, but on when specified" && (showLinenos === true))
-  ) {
-    elem_div.classList.add("hk-codeblock-show-linenos");
-
-    const elem_linenos = document.createElement("div");
-    elem_linenos.classList.add("hk-codeblock-linenos");
-    elem_linenos.innerText = Array(linenosNum).fill(0).map((_, idx) => idx + linenosStart).join("\n");
-    elem_pre.insertBefore(elem_linenos, elem_code);
-
-    if (settings.showLinenosSplitter) {
-      elem_linenos.classList.add("show-splitter");
-    }
-  }
-
-  if (settings.useHighlightGlobal === "default off, but on when specified" && (showHighlight === true)) {
-    elem_div.classList.add("hk-codeblock-show-highlight");
-
-    elem_div.style.setProperty("--hk-codeblock-highlight-background-color", settings.highlightColor);
-
-    const elem_highlight = document.createElement("div");
-    elem_highlight.classList.add("hk-codeblock-highlight");
-    elem_highlight.innerHTML = Array(linenosNum).fill(0).map((_, idx) => {
-      const classNames: string[] = [];
-      if (highlightLines.includes(idx + linenosStart)) classNames.push("highlight");
-      return `<span class="line line-${idx + linenosStart} ${classNames.join(" ")}"> </span>`;
-    }).join("\n");
-    elem_pre.insertBefore(elem_highlight, elem_code);
-  }
-
-  if (
-    (settings.useLanguageGlobal === "always on") ||
-    (settings.useLanguageGlobal === "default on, but off when specified" && (showLanguage === undefined || showLanguage === true)) ||
-    (settings.useLanguageGlobal === "default off, but on when specified" && (showLanguage === true))
-  ) {
-    elem_div.classList.add("hk-codeblock-show-language");
-
-    const elem_language = document.createElement("div");
-    elem_language.classList.add("hk-codeblock-language");
-    elem_language.innerText = language;
-    elem_pre.prepend(elem_language);
-  }
-
-  if (
-    (settings.useCopyBtnGlobal === "always on") ||
-    (settings.useCopyBtnGlobal === "default on, but off when specified" && (showCopyBtn === undefined || showCopyBtn === true)) ||
-    (settings.useCopyBtnGlobal === "default off, but on when specified" && (showCopyBtn === true))
-  ) {
-    elem_div.classList.add("hk-codeblock-show-copybtn");
-
-    elem_pre.appendChild(elem_copyBtn);
-  }
-
-  if (
-    (settings.usePromptGlobal === "always on" && settings.promptingLanguages.includes(language)) ||
-    (settings.usePromptGlobal === "default on, but off when specified" && settings.promptingLanguages.includes(language) && (showPrompt === undefined || showPrompt === true)) ||
-    (settings.usePromptGlobal === "default off, but on when specified" && (showPrompt === true))
-  ) {
-    elem_div.classList.add("hk-codeblock-show-prompt");
-
-    const elem_prompt = document.createElement("div");
-    elem_prompt.classList.add("hk-codeblock-prompt");
-
-    const lines = elem_code.innerText.split("\n");
-    elem_prompt.innerText = Array(linenosNum).fill(0).map((_, idx) => {
-      if (idx < 0 || idx >= lines.length) return null;
-
-      const line = lines[idx].trim();
-      const prevLine = idx > 0 ? lines[idx - 1].trim() : "";
-
-      if (
-        (line === "") || // check if the line is empty
-        (line.startsWith("#")) || // check if the line is a comment
-        (prevLine.endsWith("\\")) // check if the line is a continuation of the previous line
-      ) {
-        return " ".repeat(prompt.length);
+        elem_title.prepend(elem_collapseBtns);
       }
+    }
 
-      return prompt;
-    }).filter((line) => line !== null).join("\n");
 
-    elem_pre.insertBefore(elem_prompt, elem_code);
-  }
+    if (
+      (settings.useLinenosGlobal === "always on") ||
+      (settings.useLinenosGlobal === "default on, but off when specified" && (showLinenos === undefined || showLinenos === true)) ||
+      (settings.useLinenosGlobal === "default off, but on when specified" && (showLinenos === true))
+    ) {
+      elem_div.classList.add("hk-codeblock-show-linenos");
 
-  if (settings.useResultGlobal === "enable" && (isResult === true)) {
-    elem_div.classList.add("hk-codeblock-result");
-    elem_code.classList.add("hk-codeblock-result-code");
+      const elem_linenos = document.createElement("div");
+      elem_linenos.classList.add("hk-codeblock-linenos");
+      elem_linenos.innerText = Array(linenosNum).fill(0).map((_, idx) => idx + linenosStart).join("\n");
+      elem_pre.insertBefore(elem_linenos, elem_code);
 
-    elem_div.setAttribute("data-result-prompt", resultPrompt);
-  }
+      if (settings.showLinenosSplitter) {
+        elem_linenos.classList.add("show-splitter");
+      }
+    }
+
+    if (settings.useHighlightGlobal === "default off, but on when specified" && (showHighlight === true)) {
+      elem_div.classList.add("hk-codeblock-show-highlight");
+
+      elem_div.style.setProperty("--hk-codeblock-highlight-background-color", settings.highlightColor);
+
+      const elem_highlight = document.createElement("div");
+      elem_highlight.classList.add("hk-codeblock-highlight");
+      elem_highlight.innerHTML = Array(linenosNum).fill(0).map((_, idx) => {
+        const classNames: string[] = [];
+        if (highlightLines.includes(idx + linenosStart)) classNames.push("highlight");
+        return `<span class="line line-${idx + linenosStart} ${classNames.join(" ")}"> </span>`;
+      }).join("\n");
+      elem_pre.insertBefore(elem_highlight, elem_code);
+    }
+
+    if (
+      (settings.useLanguageGlobal === "always on") ||
+      (settings.useLanguageGlobal === "default on, but off when specified" && (showLanguage === undefined || showLanguage === true)) ||
+      (settings.useLanguageGlobal === "default off, but on when specified" && (showLanguage === true))
+    ) {
+      elem_div.classList.add("hk-codeblock-show-language");
+
+      const elem_language = document.createElement("div");
+      elem_language.classList.add("hk-codeblock-language");
+      elem_language.innerText = language;
+      elem_pre.prepend(elem_language);
+    }
+
+    if (
+      (settings.useCopyBtnGlobal === "always on") ||
+      (settings.useCopyBtnGlobal === "default on, but off when specified" && (showCopyBtn === undefined || showCopyBtn === true)) ||
+      (settings.useCopyBtnGlobal === "default off, but on when specified" && (showCopyBtn === true))
+    ) {
+      elem_div.classList.add("hk-codeblock-show-copybtn");
+
+      elem_pre.appendChild(elem_copyBtn);
+    }
+
+    if (
+      (settings.usePromptGlobal === "always on" && settings.promptingLanguages.includes(language)) ||
+      (settings.usePromptGlobal === "default on, but off when specified" && settings.promptingLanguages.includes(language) && (showPrompt === undefined || showPrompt === true)) ||
+      (settings.usePromptGlobal === "default off, but on when specified" && (showPrompt === true))
+    ) {
+      elem_div.classList.add("hk-codeblock-show-prompt");
+
+      const elem_prompt = document.createElement("div");
+      elem_prompt.classList.add("hk-codeblock-prompt");
+
+      const lines = elem_code.innerText.split("\n");
+      elem_prompt.innerText = Array(linenosNum).fill(0).map((_, idx) => {
+        if (idx < 0 || idx >= lines.length) return null;
+
+        const line = lines[idx].trim();
+        const prevLine = idx > 0 ? lines[idx - 1].trim() : "";
+
+        if (
+          (line === "") || // check if the line is empty
+          (line.startsWith("#")) || // check if the line is a comment
+          (prevLine.endsWith("\\")) // check if the line is a continuation of the previous line
+        ) {
+          return " ".repeat(prompt.length);
+        }
+
+        return prompt;
+      }).filter((line) => line !== null).join("\n");
+
+      elem_pre.insertBefore(elem_prompt, elem_code);
+    }
+
+    if (settings.useResultGlobal === "enable" && (isResult === true)) {
+      const isCodeBlockAdjacent = ((): boolean => {
+        let line_idx = lineStartInSection - 1;
+        while (line_idx >= 0) {
+          const line = view.editor.getLine(line_idx).trim();
+          if (line.length === 0) {
+            line_idx--;
+            continue;
+          } else if (line === "```") {
+            return true;
+          } else {
+            return false;
+          }
+        }
+        return false;
+      })();
+
+      if (isCodeBlockAdjacent) {
+        elem_div.classList.add("hk-codeblock-result");
+        elem_code.classList.add("hk-codeblock-result-code");
+
+        const elem_result_prompt = document.createElement("div");
+        elem_result_prompt.classList.add("hk-codeblock-result-prompt");
+        elem_result_prompt.innerText = resultPrompt;
+        elem_div.insertBefore(elem_result_prompt, elem_pre);
+      }
+    }
+  });
 }

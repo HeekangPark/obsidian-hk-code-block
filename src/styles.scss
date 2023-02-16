@@ -227,19 +227,20 @@
 }
 
 /* result */
-.hk-codeblock+.hk-codeblock.hk-codeblock-result {
+.hk-codeblock.hk-codeblock-result {
   margin-top: calc(var(--hk-codeblock-margin) * (-1));
   border-top: 1px solid var(--hk-codeblock-border-color);
+  background-color: var(--hk-codeblock-background-color);
 
-  &::before {
-    content: attr(data-result-prompt);
-    display: block;
+  .hk-codeblock-result-prompt {
     color: var(--hk-codeblock-result-text-color);
-    opacity: 0.6;
+    opacity: 0.4;
     font-size: 0.8em;
     padding-top: var(--hk-codeblock-vertical-padding);
     padding-left: var(--hk-codeblock-horizontal-padding);
     padding-right: var(--hk-codeblock-horizontal-padding);
+    user-select: none;
+    pointer-events: none;
   }
 
   pre {
