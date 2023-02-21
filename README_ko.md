@@ -1,4 +1,4 @@
-# HK CodeBlock
+# HK Code Block
 
 [Obsidian](https://obsidian.md) plugin developed by Heekang Park
 
@@ -392,3 +392,8 @@ MIT License
 - 버그 수정
   - 다른 요소(ex. li) 아래에 있는 연속된 code block의 제목이 렌더링되지 않던 문제 해결
   - 다른 요소 아래에 있는 code block에서 빈 마지막 줄이 삽입되던 문제 해결
+
+### 0.3.2
+
+- 버그 수정
+  - code block에 margin-top 추가

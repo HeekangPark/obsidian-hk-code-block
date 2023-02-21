@@ -1,4 +1,4 @@
-# HK CodeBlock
+# HK Code Block
 
 [Obsidian](https://obsidian.md) plugin developed by Heekang Park
 
@@ -392,3 +392,8 @@ Versions are controlled by the rule below.
 - Bug fix
   - Fix that the titles of continuous code blocks inside other elements(ex. li) are not rendered properly
   - Fix that an additional empty line is inserted at the end of the code block when the code block is inside other elements(ex. li)
+
+### 0.3.2
+
+- Bug fix
+  - Add some margin-top to the code block

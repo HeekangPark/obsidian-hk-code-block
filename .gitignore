@@ -1,8 +1,12 @@
 .vscode 
 
 node_modules
+package-lock.json
 
 # ignore files for local testing
 main.js
 styles.css
 data.json
+
+!dist/main.js
+!dist/styles.css

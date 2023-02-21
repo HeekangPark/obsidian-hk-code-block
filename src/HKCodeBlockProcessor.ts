@@ -253,7 +253,7 @@ function getMeta(
   return return_value;
 }
 
-export async function HKCodeBlockProcessor(
+export function HKCodeBlockProcessor(
   el: HTMLElement,
   context: MarkdownPostProcessorContext,
   plugin: HKCodeBlockPlugin

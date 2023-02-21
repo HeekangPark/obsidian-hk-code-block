@@ -1,4 +1,4 @@
-import { Plugin, loadPrism } from 'obsidian';
+import { Plugin } from 'obsidian';
 
 import type { HKCodeBlockSettings } from './HKCodeBlockSettings';
 import { DEFAULT_SETTINGS } from './HKCodeBlockSettings';
@@ -11,7 +11,7 @@ export default class HKCodeBlockPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		if (this.settings.debugMode) {
-			console.log("loading HKCodeBlock plugin");
+			console.log("loading HK Code Block plugin");
 		}
 
 		// register settings tab
