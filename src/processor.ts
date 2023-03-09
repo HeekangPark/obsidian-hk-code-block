@@ -2,7 +2,7 @@ import { MarkdownView } from "obsidian";
 import type { MarkdownPostProcessorContext, MarkdownSectionInformation } from "obsidian";
 
 import HKCodeBlockPlugin from "./main";
-import type { HKCodeBlockSettings } from "./HKCodeBlockSettings";
+import type { HKCodeBlockSettings } from "./settings";
 
 const REGEX = {
   TITLE: /\stitle:(?:'(.*?)'|"(.*?)")\s/,
@@ -492,7 +492,7 @@ export function HKCodeBlockProcessor(
       elem_pre.insertBefore(elem_prompt, elem_code);
     }
 
-    if (settings.useResultGlobal === "enable" && (isResult === true)) {
+    if (settings.useResultGlobal === true && (isResult === true)) {
       const isCodeBlockAdjacent = ((): boolean => {
         let line_idx = lineStartInSection - 1;
         while (line_idx >= 0) {

@@ -20,7 +20,7 @@ export interface HKCodeBlockSettings {
 	usePromptGlobal: ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off");
 	defaultPrompt: string;
 	
-	useResultGlobal: ("enable" | "disable");
+	useResultGlobal: boolean;
 	promptingLanguages: string[];
 	defaultResultPrompt: string;
 
@@ -50,7 +50,7 @@ export const DEFAULT_SETTINGS: HKCodeBlockSettings = {
 	promptingLanguages: ["bash"],
 	defaultPrompt: "$",
 
-	useResultGlobal: "enable",
+	useResultGlobal: true,
 	defaultResultPrompt: "Result",
 
 	debugMode: false,

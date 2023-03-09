@@ -397,3 +397,11 @@ Versions are controlled by the rule below.
 
 - Bug fix
   - Add some margin-top to the code block
+
+### 0.4.0
+
+- Follow pull request guide comments
+  - change "Use Result" setting from dropdown to toggle
+  - remove `as` statement
+- etc
+  - rename file names

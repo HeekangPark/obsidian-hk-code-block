@@ -397,3 +397,11 @@ MIT License
 
 - 버그 수정
   - code block에 margin-top 추가
+
+### 0.4.0
+
+- PR guide comment 따라 업데이트
+  - "Use Result" 설정을 드롭다운에서 토글 형태로 바꿈
+  - `as` statement 제거
+- 기타
+  - 파일명 재설정

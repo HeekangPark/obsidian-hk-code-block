@@ -33,8 +33,8 @@ export class HKCodeBlockSettingTab extends PluginSettingTab {
 					"always off": "always off",
 				})
 					.setValue(this.plugin.settings.useTitleGlobal)
-					.onChange(async (value: string) => {
-						this.plugin.settings.useTitleGlobal = value as ("default off, but on when specified" | "always off");
+					.onChange(async (value: ("default off, but on when specified" | "always off")) => {
+						this.plugin.settings.useTitleGlobal = value;
 						await this.plugin.saveSettings();
 					})
 			);
@@ -56,8 +56,8 @@ export class HKCodeBlockSettingTab extends PluginSettingTab {
 					"always off": "always off",
 				})
 					.setValue(this.plugin.settings.useCollapsibleGlobal)
-					.onChange(async (value: string) => {
-						this.plugin.settings.useCollapsibleGlobal = value as ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off");
+					.onChange(async (value: ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off")) => {
+						this.plugin.settings.useCollapsibleGlobal = value;
 						await this.plugin.saveSettings();
 					})
 			);
@@ -71,8 +71,8 @@ export class HKCodeBlockSettingTab extends PluginSettingTab {
 					"expand": "expand",
 				})
 					.setValue(this.plugin.settings.defaultCollapse)
-					.onChange(async (value: string) => {
-						this.plugin.settings.defaultCollapse = value as ("collapse" | "expand");
+					.onChange(async (value: ("collapse" | "expand")) => {
+						this.plugin.settings.defaultCollapse = value;
 						await this.plugin.saveSettings();
 					})
 			);
@@ -94,8 +94,8 @@ export class HKCodeBlockSettingTab extends PluginSettingTab {
 					"always off": "always off",
 				})
 					.setValue(this.plugin.settings.useLinenosGlobal)
-					.onChange(async (value: string) => {
-						this.plugin.settings.useLinenosGlobal = value as ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off");
+					.onChange(async (value: ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off")) => {
+						this.plugin.settings.useLinenosGlobal = value;
 						await this.plugin.saveSettings();
 					})
 			);
@@ -137,8 +137,8 @@ export class HKCodeBlockSettingTab extends PluginSettingTab {
 					"always off": "always off",
 				})
 					.setValue(this.plugin.settings.useHighlightGlobal)
-					.onChange(async (value: string) => {
-						this.plugin.settings.useHighlightGlobal = value as ("default off, but on when specified" | "always off");
+					.onChange(async (value: ("default off, but on when specified" | "always off")) => {
+						this.plugin.settings.useHighlightGlobal = value;
 						await this.plugin.saveSettings();
 					})
 			);
@@ -171,8 +171,8 @@ export class HKCodeBlockSettingTab extends PluginSettingTab {
 					"always off": "always off",
 				})
 					.setValue(this.plugin.settings.useLanguageGlobal)
-					.onChange(async (value: string) => {
-						this.plugin.settings.useLanguageGlobal = value as ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off");
+					.onChange(async (value: ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off")) => {
+						this.plugin.settings.useLanguageGlobal = value;
 						await this.plugin.saveSettings();
 					})
 			);
@@ -205,8 +205,8 @@ export class HKCodeBlockSettingTab extends PluginSettingTab {
 					"always off": "always off",
 				})
 					.setValue(this.plugin.settings.useCopyBtnGlobal)
-					.onChange(async (value: string) => {
-						this.plugin.settings.useCopyBtnGlobal = value as ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off");
+					.onChange(async (value: ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off")) => {
+						this.plugin.settings.useCopyBtnGlobal = value;
 						await this.plugin.saveSettings();
 					})
 			);
@@ -228,8 +228,8 @@ export class HKCodeBlockSettingTab extends PluginSettingTab {
 					"always off": "always off",
 				})
 					.setValue(this.plugin.settings.usePromptGlobal)
-					.onChange(async (value: string) => {
-						this.plugin.settings.usePromptGlobal = value as ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off");
+					.onChange(async (value: ("always on" | "default on, but off when specified" | "default off, but on when specified" | "always off")) => {
+						this.plugin.settings.usePromptGlobal = value;
 						await this.plugin.saveSettings();
 					})
 			);
@@ -264,14 +264,10 @@ export class HKCodeBlockSettingTab extends PluginSettingTab {
 			.setName('Use Result')
 			.setDesc(fragWithHTML(`- <b>enable</b> : treat the code block starts like \`\`\`\`result\` as the result of the adjacent previous code block
 				- <b>disable</b> : treat the code block with \`result\` as its language name as a normal code block`))
-			.addDropdown(tc =>
-				tc.addOptions({
-					"enable": "enable",
-					"disable": "disable",
-				})
-					.setValue(this.plugin.settings.useResultGlobal)
-					.onChange(async (value: string) => {
-						this.plugin.settings.useResultGlobal = value as ("enable" | "disable");
+			.addToggle(tc =>
+				tc.setValue(this.plugin.settings.useResultGlobal)
+					.onChange(async (value: boolean) => {
+						this.plugin.settings.useResultGlobal = value;
 						await this.plugin.saveSettings();
 					})
 			);

@@ -1,9 +1,9 @@
 import { Plugin } from 'obsidian';
 
-import type { HKCodeBlockSettings } from './HKCodeBlockSettings';
-import { DEFAULT_SETTINGS } from './HKCodeBlockSettings';
-import { HKCodeBlockSettingTab } from './HKCodeBlockSettingTab';
-import { HKCodeBlockProcessor } from './HKCodeBlockProcessor';
+import type { HKCodeBlockSettings as HKCodeBlockSettings } from './settings';
+import { DEFAULT_SETTINGS } from './settings';
+import { HKCodeBlockSettingTab } from './settingTab';
+import { HKCodeBlockProcessor } from './processor';
 
 export default class HKCodeBlockPlugin extends Plugin {
 	settings: HKCodeBlockSettings;
