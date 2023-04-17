@@ -351,6 +351,7 @@ MIT License
     - [Shimmering Focus](https://github.com/chrisgrieser/shimmering-focus)
     - [Wasp](https://github.com/santiyounger/Wasp-Obsidian-Theme)
     - [Typewriter](https://github.com/crashmoney/obsidian-typewriter)
+    - [Red Graphite](https://github.com/seanwcom/Red-Graphite-for-Obsidian)
   - 테마 문제의 대부분은 해당 테마들이 CSS에 `!important` 키워드를 붙여 HK Code Block의 CSS 우선순위가 밀려 발생합니다. HK Code Block은 다른 테마, 플러그인과의 호환성을 위해 `!important` 키워드를 사용하지 않습니다. 만약 이런 테마들에서도 HK Code Block을 사용하고 싶다면 해당 테마의 CSS를 수정하거나 `!important` 등을 사용, HK Code Block의 CSS 우선순위를 직접 높여야 합니다.
 
 ## 버그 제보, 기능 추가 요청
@@ -405,3 +406,9 @@ MIT License
   - `as` statement 제거
 - 기타
   - 파일명 재설정
+
+### 0.4.1
+
+- css 수정
+  - CSS를 더욱 명료하게 수정
+

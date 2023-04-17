@@ -6,38 +6,70 @@
     --hk-codeblock-vertical-padding: 8px;
     --hk-codeblock-background-color: var(--code-background);
     --hk-codeblock-border-color: var(--divider-color); // applied to title, linenos, and result
+    --hk-codeblock-font-family: var(--font-monospace);
     --hk-codeblock-font-size: var(--code-size);
-    --hk-codeblock-title-text-color: var(--text-normal);
-    --hk-codeblock-linenos-text-color: var(--code-normal);
-    --hk-codeblock-linenos-text-font: var(--font-monospace);
-    --hk-codeblock-language-text-color: var(--text-muted); // same with copy button
-    --hk-codeblock-language-text-size: var(--font-ui-smaller); // same with copy button
-    --hk-codeblock-language-text-font: var(--font-interface); // same with copy button
-    --hk-codeblock-prompt-text-color: var(--code-normal);
-    --hk-codeblock-prompt-text-font: var(--font-monospace);
-    --hk-codeblock-result-text-color: var(--text-normal);
+    --hk-codeblock-text-color: var(--code-normal);
+
+    --hk-codeblock-title-text-font: var(--hk-codeblock-font-family);
+    --hk-codeblock-title-text-color: var(--hk-codeblock-text-color);
+    --hk-codeblock-title-text-size: var(--hk-codeblock-font-size);
+
+    --hk-codeblock-linenos-text-font: var(--hk-codeblock-font-family);
+    --hk-codeblock-linenos-text-color: var(--hk-codeblock-text-color);
+    --hk-codeblock-linenos-text-size: var(--hk-codeblock-font-size);
+
+    --hk-codeblock-language-text-font: var(--hk-codeblock-font-family); 
+    --hk-codeblock-language-text-color: var(--hk-codeblock-text-color); 
+    --hk-codeblock-language-text-size: calc(var(--hk-codeblock-font-size) * 0.9);
+
+    --hk-codeblock-copy-btn-text-font: var(--hk-codeblock-font-family);
+    --hk-codeblock-copy-btn-text-color: var(--hk-codeblock-text-color);
+    --hk-codeblock-copy-btn-text-size: calc(var(--hk-codeblock-font-size) * 0.9);
+
+    --hk-codeblock-prompt-text-font: var(--hk-codeblock-font-family);
+    --hk-codeblock-prompt-text-color: var(--hk-codeblock-text-color);
+    --hk-codeblock-prompt-text-size: var(--hk-codeblock-font-size);
+
+    --hk-codeblock-result-text-font: var(--hk-codeblock-font-family);
+    --hk-codeblock-result-text-color: var(--hk-codeblock-text-color);
+    --hk-codeblock-result-text-size: var(--hk-codeblock-font-size);
   }
 
   position: relative;
-  margin-bottom: var(--hk-codeblock-margin);
-  margin-top: var(--hk-codeblock-margin);
+
+  margin: {
+    top: var(--hk-codeblock-margin);
+    bottom: var(--hk-codeblock-margin);
+  }
 
   pre {
     position: relative;
+    border-radius: initial;
     display: flex;
     flex-direction: row;
     margin: 0;
-    padding-top: var(--hk-codeblock-vertical-padding);
-    padding-bottom: var(--hk-codeblock-vertical-padding);
-    padding-left: var(--hk-codeblock-horizontal-padding);
-    padding-right: var(--hk-codeblock-horizontal-padding);
+    min-height: 0;
+
+    padding: {
+      top: var(--hk-codeblock-vertical-padding);
+      bottom: var(--hk-codeblock-vertical-padding);
+      left: var(--hk-codeblock-horizontal-padding);
+      right: var(--hk-codeblock-horizontal-padding);
+    }
+
     background-color: var(--hk-codeblock-background-color);
+    font-family: var(--hk-codeblock-font-family);
+    color: var(--hk-codeblock-text-color);
+    //font-size: var(--hk-codeblock-font-size); // if the size is provided with the em unit, this can cause text being too small
 
     code.hk-codeblock-code {
       white-space: pre;
       overflow-x: auto;
       padding: 0;
       background-color: var(--hk-codeblock-background-color);
+      font-family: var(--hk-codeblock-font-family);
+      color: var(--hk-codeblock-text-color);
+      font-size: var(--hk-codeblock-font-size);
     }
   }
 }
@@ -45,13 +77,18 @@
 /* title */
 .hk-codeblock.hk-codeblock-show-title {
   .hk-codeblock-title {
-    padding-left: var(--hk-codeblock-horizontal-padding);
-    padding-right: var(--hk-codeblock-horizontal-padding);
-    padding-top: var(--hk-codeblock-vertical-padding);
-    padding-bottom: var(--hk-codeblock-vertical-padding);
+    padding: {
+      top: var(--hk-codeblock-vertical-padding);
+      bottom: var(--hk-codeblock-vertical-padding);
+      left: var(--hk-codeblock-horizontal-padding);
+      right: var(--hk-codeblock-horizontal-padding);
+    }
+
     background-color: var(--hk-codeblock-background-color);
     border-bottom: 1px solid var(--hk-codeblock-border-color);
+    font-family: var(--hk-codeblock-title-text-font);
     color: var(--hk-codeblock-title-text-color);
+    font-size: var(--hk-codeblock-title-text-size);
 
     display: flex;
     flex-direction: row;
@@ -79,8 +116,8 @@
       left: -3px;
 
       .hk-codeblock-collapse-btn {
-        width: 16px;
-        height: 16px;
+        width: var(--hk-codeblock-title-text-size);
+        height: var(--hk-codeblock-title-text-size);
 
         fill: var(--hk-codeblock-title-text-color);
         stroke: var(--hk-codeblock-title-text-color);
@@ -132,10 +169,10 @@
       padding-right: 1em;
       opacity: 0.6;
       user-select: none;
-      color: var(--hk-codeblock-linenos-text-color);
       white-space: pre;
       font-family: var(--hk-codeblock-linenos-text-font);
-      font-size: var(--hk-codeblock-font-size);
+      color: var(--hk-codeblock-linenos-text-color);
+      font-size: var(--hk-codeblock-linenos-text-size);
       background-color: transparent;
 
       &.show-splitter {
@@ -159,11 +196,16 @@
       bottom: 0;
       pointer-events: none;
       user-select: none;
-      padding-top: var(--hk-codeblock-vertical-padding);
-      padding-bottom: var(--hk-codeblock-vertical-padding);
+
+      padding: {
+        top: var(--hk-codeblock-vertical-padding);
+        bottom: var(--hk-codeblock-vertical-padding);
+      }
+
       opacity: 0.2;
       font-family: var(--hk-codeblock-linenos-text-font);
-      font-size: var(--hk-codeblock-font-size);
+      font-size: var(--hk-codeblock-linenos-text-font);
+      color: var(--hk-codeblock-linenos-text-color);
       background-color: transparent;
 
       .line.highlight {
@@ -181,12 +223,19 @@
       user-select: none;
       z-index: 1;
       margin: 6px;
-      padding: 6px 8px;
+
+      padding: {
+        top: 6px;
+        bottom: 6px;
+        left: 8px;
+        right: 8px;
+      }
+
       background-color: transparent;
       box-shadow: none;
+      font-family: var(--hk-codeblock-language-text-font);
       color: var(--hk-codeblock-language-text-color);
       font-size: var(--hk-codeblock-language-text-size);
-      font-family: var(--hk-codeblock-language-text-font);
       position: absolute;
       top: 0;
       right: 0;
@@ -203,6 +252,37 @@
   pre {
     .copy-code-button {
       cursor: pointer;
+
+      opacity: 0.4;
+      user-select: none;
+      z-index: 1;
+      margin: 6px;
+
+      padding: {
+        top: 6px;
+        bottom: 6px;
+        left: 8px;
+        right: 8px;
+      }
+
+      background-color: transparent;
+      box-shadow: none;
+      font-family: var(--hk-codeblock-code-block-text-font);
+      color: var(--hk-codeblock-code-block-text-color);
+      font-size: var(--hk-codeblock-code-block-text-size);
+      position: absolute;
+      top: 0;
+      right: 0;
+
+      &:hover {
+        opacity: 1;
+        background-color: #ffffff13;
+      }
+
+      &:active {
+        opacity: 1;
+        background-color: #ffffff26;
+      }
     }
   }
 }
@@ -214,14 +294,20 @@
       flex-shrink: 0;
       flex-grow: 0;
       text-align: right;
-      padding: 0;
-      padding-right: 0.8em;
+
+      padding: {
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0.8em;
+      }
+
       opacity: 0.6;
       user-select: none;
       color: var(--hk-codeblock-prompt-text-color);
       white-space: pre;
       font-family: var(--hk-codeblock-prompt-text-font);
-      font-size: var(--hk-codeblock-font-size);
+      font-size: var(--hk-codeblock-prompt-text-size);
       background-color: transparent;
     }
   }
@@ -237,9 +323,13 @@
     color: var(--hk-codeblock-result-text-color);
     opacity: 0.4;
     font-size: 0.8em;
-    padding-top: var(--hk-codeblock-vertical-padding);
-    padding-left: var(--hk-codeblock-horizontal-padding);
-    padding-right: var(--hk-codeblock-horizontal-padding);
+
+    padding: {
+      top: var(--hk-codeblock-vertical-padding);
+      left: var(--hk-codeblock-horizontal-padding);
+      right: var(--hk-codeblock-horizontal-padding);
+    }
+
     user-select: none;
     pointer-events: none;
   }
@@ -249,6 +339,8 @@
 
     .hk-codeblock-result-code {
       color: var(--hk-codeblock-result-text-color);
+      font-family: var(--hk-codeblock-result-text-font);
+      font-size: var(--hk-codeblock-result-text-size);
     }
   }
 }

@@ -351,6 +351,7 @@ MIT License
     - [Shimmering Focus](https://github.com/chrisgrieser/shimmering-focus)
     - [Wasp](https://github.com/santiyounger/Wasp-Obsidian-Theme)
     - [Typewriter](https://github.com/crashmoney/obsidian-typewriter)
+    - [Red Graphite](https://github.com/seanwcom/Red-Graphite-for-Obsidian)
   - Most of the theme problem is caused by the usage of `!important` keywords in the theme CSS. HK Code Block does not use `!important` keywords at all in order to avoid conflicts with other themes or plugins. If you want to use HK Code Block plugin with those themes, you should modify the theme CSS files, or by using `!important` keywords, you should explicitly increase the priority of the HK Code Block CSS rules.
 
 ## Bug Report, Feature Request
@@ -405,3 +406,9 @@ Versions are controlled by the rule below.
   - remove `as` statement
 - etc
   - rename file names
+
+### 0.4.1
+
+- css update
+  - make css more explicit
+
